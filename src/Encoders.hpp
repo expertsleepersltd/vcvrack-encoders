@@ -10,3 +10,4 @@ extern Model *model8GT;
 extern Model *model8CV;
 extern Model *modelES40;
 extern Model *modelES5;
+extern Model *modelSMUX;

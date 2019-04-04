@@ -1,9 +1,15 @@
 #include "Encoders.hpp"
+#include <string.h>
 
 struct Module8GT : Module
 {
-	Module8GT() : Module(0, 8, 1, 0) {}
+	Module8GT() : Module(0, 8, 1, 0)
+	{
+		memset( m_bits, 0, sizeof m_bits );
+	}
 	void step() override;
+	
+	bool	m_bits[8];
 };
 
 void Module8GT::step()
@@ -13,7 +19,17 @@ void Module8GT::step()
 	for ( int i=0; i<8; ++i )
 	{
 		float f = inputs[i].value;
-		f = ( f != 0.0f ) ? (1<<i) : 0;
+		if ( m_bits[i] )
+		{
+			if ( f < 0.5f )
+				m_bits[i] = false;
+		}
+		else
+		{
+			if ( f >= 1.0f )
+				m_bits[i] = true;
+		}
+		f = m_bits[i] ? (1<<i) : 0;
 		out += f;
 	}
 
