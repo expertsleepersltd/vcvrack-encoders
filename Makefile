@@ -1,13 +1,5 @@
 # If RACK_DIR is not defined when calling the Makefile, default to two directories above
-RACK_DIR ?= ../..
-
-# Must follow the format in the Naming section of
-# https://vcvrack.com/manual/PluginDevelopmentTutorial.html
-SLUG = ExpertSleepers-Encoders
-
-# Must follow the format in the Versioning section of
-# https://vcvrack.com/manual/PluginDevelopmentTutorial.html
-VERSION = 0.6.1
+RACK_DIR ?= ../../../Rack-SDK
 
 # FLAGS will be passed to both the C and C++ compiler
 FLAGS +=

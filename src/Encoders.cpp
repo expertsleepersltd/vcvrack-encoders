@@ -1,12 +1,10 @@
 #include "Encoders.hpp"
 
-Plugin *plugin;
+Plugin *pluginInstance;
 
 void init(Plugin *p)
 {
-	plugin = p;
-	p->slug = TOSTRING(SLUG);
-	p->version = TOSTRING(VERSION);
+	pluginInstance = p;
 
 	p->addModel( model8GT );
 	p->addModel( model8CV );

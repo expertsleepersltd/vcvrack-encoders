@@ -3,22 +3,24 @@
 
 struct Module8GT : Module
 {
-	Module8GT() : Module(0, 8, 1, 0)
+	Module8GT()
 	{
+		config( 0, 8, 1, 0 );
+
 		memset( m_bits, 0, sizeof m_bits );
 	}
-	void step() override;
+	void process(const ProcessArgs &args) override;
 	
 	bool	m_bits[8];
 };
 
-void Module8GT::step()
+void Module8GT::process(const ProcessArgs &args)
 {
 	float out = 0.0f;
 	
 	for ( int i=0; i<8; ++i )
 	{
-		float f = inputs[i].value;
+		float f = inputs[i].getVoltage();
 		if ( m_bits[i] )
 		{
 			if ( f < 0.5f )
@@ -33,24 +35,26 @@ void Module8GT::step()
 		out += f;
 	}
 
-	outputs[0].value = out;
+	outputs[0].setVoltage(out);
 }
 
 struct Module8GTWidget : ModuleWidget
 {
-	Module8GTWidget(Module8GT *module) : ModuleWidget(module)
+	Module8GTWidget(Module8GT *module)
 	{
-		setPanel(SVG::load(assetPlugin(plugin, "res/8GT.svg")));
+		setModule(module);
+
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/8GT.svg")));
 
 		for ( int i=0; i<8; ++i )
-			addInput(Port::create<PJ301MPort>(Vec(17, 45+33*i), Port::INPUT, module, i));
+			addInput(createInput<PJ301MPort>(Vec(17, 45+33*i), module, i));
 
-		addOutput(Port::create<PJ301MPort>(Vec(17, 10*33), Port::OUTPUT, module, 0));
+		addOutput(createOutput<PJ301MPort>(Vec(17, 10*33), module, 0));
 	}
 };
 
 // Specify the Module and ModuleWidget subclass, human-readable
-// author name for categorization per plugin, module slug (should never
+// author name for categorization per pluginInstance, module slug (should never
 // change), human-readable module name, and any number of tags
 // (found in `include/tags.hpp`) separated by commas.
-Model *model8GT = Model::create<Module8GT, Module8GTWidget>( "Expert Sleepers", "ExpertSleepers-Encoders-8GT", "8GT Encoder", EXTERNAL_TAG );
+Model *model8GT = createModel<Module8GT, Module8GTWidget>( "ExpertSleepers-Encoders-8GT" );

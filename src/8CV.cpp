@@ -2,18 +2,18 @@
 
 struct Module8CV : Module
 {
-	Module8CV() : Module(0, 8, 1, 0)
-				, m_phase( 0 )
+	Module8CV() : m_phase( 0 )
 				, m_value( 0 )
 	{
+		config( 0, 8, 1, 0 );
 	}
-	void step() override;
+	void process(const ProcessArgs &args) override;
 	
 	int 			m_phase;
 	unsigned int	m_value;
 };
 
-void Module8CV::step()
+void Module8CV::process(const ProcessArgs &args)
 {
 	int state = ( m_phase >> 1 ) & 3;
 	int dac = ( m_phase >> 3 ) & 7;
@@ -22,7 +22,7 @@ void Module8CV::step()
 	{
 		{
 			// take the next dac in sequence
-			float s = inputs[ dac ].value * 384;
+			float s = inputs[ dac ].getVoltage() * 384;
 			m_value = 2048 + (int)( std::max( -2048.0f, std::min( 2047.0f, s ) ) );
 		}
 	}
@@ -41,24 +41,26 @@ void Module8CV::step()
 				   : ( ( state == 1 ) ? ( ( m_value >> 5 ) & 0x1f )
 	   			   : ( ( ( dac > 3 ) ? 0x40 : 0x20 ) | ( m_value >> 10 ) | ( ( dac & 3 ) << 2 ) ) );
 
-	outputs[0].value = out;
+	outputs[0].setVoltage(out);
 }
 
 struct Module8CVWidget : ModuleWidget
 {
-	Module8CVWidget(Module8CV *module) : ModuleWidget(module)
+	Module8CVWidget(Module8CV *module)
 	{
-		setPanel(SVG::load(assetPlugin(plugin, "res/8CV.svg")));
+		setModule(module);
+		
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/8CV.svg")));
 
 		for ( int i=0; i<8; ++i )
-			addInput(Port::create<PJ301MPort>(Vec(17, 45+33*i), Port::INPUT, module, i));
+			addInput(createInput<PJ301MPort>(Vec(17, 45+33*i), module, i));
 
-		addOutput(Port::create<PJ301MPort>(Vec(17, 10*33), Port::OUTPUT, module, 0));
+		addOutput(createOutput<PJ301MPort>(Vec(17, 10*33), module, 0));
 	}
 };
 
 // Specify the Module and ModuleWidget subclass, human-readable
-// author name for categorization per plugin, module slug (should never
+// author name for categorization per pluginInstance, module slug (should never
 // change), human-readable module name, and any number of tags
 // (found in `include/tags.hpp`) separated by commas.
-Model *model8CV = Model::create<Module8CV, Module8CVWidget>( "Expert Sleepers", "ExpertSleepers-Encoders-8CV", "8CV Encoder", EXTERNAL_TAG );
+Model *model8CV = createModel<Module8CV, Module8CVWidget>( "ExpertSleepers-Encoders-8CV" );
