@@ -11,4 +11,5 @@ void init(Plugin *p)
 	p->addModel( modelES40 );
 	p->addModel( modelES5 );
 	p->addModel( modelSMUX );
+	p->addModel( modelCalibrator );
 }
