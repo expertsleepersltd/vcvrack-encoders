@@ -243,7 +243,7 @@ float ModuleCalibrator::findMedianSample(void)
 	return samples[ kNumSamples/2 ];
 }
 
-struct StatusWindow : LedDisplayTextField
+struct StatusWindowTextField : LedDisplayTextField
 {
 	const std::string* source;
 	
@@ -256,6 +256,16 @@ struct StatusWindow : LedDisplayTextField
 		if ( source )
 			setText( *source );
 		LedDisplayTextField::draw( args );
+	}
+};
+
+struct StatusWindow : LedDisplay {
+	void setModule(ModuleCalibrator* module) {
+		StatusWindowTextField* textField = createWidget<StatusWindowTextField>(Vec(0, 0));
+		textField->box.size = box.size;
+		textField->multiline = true;
+		textField->source = module ? &module->status : NULL;
+		addChild(textField);
 	}
 };
 
@@ -287,8 +297,7 @@ struct ModuleCalibratorWidget : ModuleWidget
 
 		textField = createWidget<StatusWindow>( Vec(5, 45) );
 		textField->box.size = Vec(80, 100);
-		textField->multiline = true;
-		textField->source = module ? &module->status : NULL;
+		textField->setModule( module );
 		addChild(textField);
 	}
 };
